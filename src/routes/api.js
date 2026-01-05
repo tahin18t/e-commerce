@@ -1,10 +1,10 @@
 import express from "express";
 import * as ProductController from "../controllers/ProductController.js";
 import * as UserController from "../controllers/UserController.js";
-import * as WishListController from "../Controllers/WishListController.js"
-import * as CartListController from "../Controllers/CartListController.js"
-import * as FeaturesController from "../Controllers/FeaturesController.js"
-import * as InvoiceController from "../Controllers/InvoiceController.js"
+import * as WishListController from "../controllers/WishListController.js"
+import * as CartListController from "../controllers/CartListController.js"
+import * as FeaturesController from "../controllers/FeaturesController.js"
+import * as InvoiceController from "../controllers/InvoiceController.js"
 import AuthVerification from "../middleware/AuthVerification.js"
 const router = express.Router();
 
