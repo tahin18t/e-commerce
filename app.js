@@ -51,12 +51,12 @@ const limiter = rateLimit({
 app.use(limiter)
 
 // Mongodb Database Connection
-let URL = process.env.COMPASS_URL;
+const URL = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.CLUSTER_NAME}/${process.env.DB_NAME}?retryWrites=true&w=majority&appName=PersonalProject`;
+
 console.log(URL)
 let OPTIONS = {
-    user:process.env.DB_USERNAME,
-    pass:process.env.DB_PASSWORD,
-    autoIndex:true}
+    autoIndex:true
+}
 
 mongoose.connect(URL, OPTIONS)
     .then(() => console.log("Database Connected Successfully"))
