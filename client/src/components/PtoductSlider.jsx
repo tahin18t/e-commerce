@@ -36,7 +36,7 @@ const PtoductSlider = () => {
                         {console.log("Slider data:"+item)}
                         <Link to={`/product/${item.productID}`}>
                             <img
-                                src="https://placehold.co/600x400"
+                                src={item.img}
                                 alt={item.title}
                                 className="w-full h-64 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                             />

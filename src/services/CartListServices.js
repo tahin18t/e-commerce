@@ -6,7 +6,7 @@ const ObjectID = mongoose.Types.ObjectId;
 export async function CartListService(req) {
     try {
         let user_id = new ObjectID(req.headers.user_id);
-        let MatchStage = {$match:{userID:user_id}}
+        let MatchStage = { $match: { userID: user_id } }
         let JoinWithProductStage = {
             $lookup: {
                 from: "products",
@@ -15,19 +15,20 @@ export async function CartListService(req) {
                 as: "Product",
             }
         }
-        let unwindProductStage = {$unwind: "$Product"};
+        let unwindProductStage = { $unwind: "$Product" };
         let projectionStage = {
             $project: {
-                color:1,
-                qty:1,
-                size:1,
-                "Product._id":1,
-                "Product.title":1,
-                "Product.price":1,
-                "Product.discountPrice":1,
-                "Product.star":1,
-                "Product.stock":1,
-                "Product.remark":1
+                color: 1,
+                qty: 1,
+                size: 1,
+                "Product._id": 1,
+                "Product.image": 1,
+                "Product.title": 1,
+                "Product.price": 1,
+                "Product.discountPrice": 1,
+                "Product.star": 1,
+                "Product.stock": 1,
+                "Product.remark": 1
             }
         }
 
@@ -37,40 +38,56 @@ export async function CartListService(req) {
             projectionStage
         ])
 
-        return {status: "success", data: data}
+        return { status: "success", data: data }
     }
     catch (e) {
-        return {status: "error", error: e.message};
+        return { status: "error", error: e.message };
     }
 }
 
 export async function AddToCartService(req) {
-    try{
+    try {
         let reqBody = req.body;
         reqBody.userID = req.headers.user_id
         let data = await CartModel.updateOne(
             { userID: new ObjectID(reqBody.userID), productID: new ObjectID(reqBody.productID) },
             reqBody,
-            {upsert: true}
+            { upsert: true }
         )
 
-        return {status: "success", data: data}
+        return { status: "success", data: data }
 
     }
     catch (e) {
-        return {status: "error", error: e.message};
+        return { status: "error", error: e.message };
     }
 }
 
 export async function RemoveFromCartService(req) {
-    try{
+    try {
         let ProductID = new ObjectID(req.params.ProductID)
         let UserID = new ObjectID(req.headers.user_id)
-        let data = await CartModel.deleteOne({userID: UserID, productID: ProductID})
-
-        return {status: "success", data: data}
+        // console.log(ProductID, UserID)
+        
+        // // Check all carts for this user
+        // let allCarts = await CartModel.find({ userID: UserID })
+        // console.log('All carts for user:', allCarts)
+        
+        // // Check if the document exists
+        // let existingCart = await CartModel.findOne({
+        //     productID: ProductID,
+        //     userID: UserID
+        // })
+        // console.log('Existing cart item:', existingCart)
+        
+        let data = await CartModel.deleteOne({
+            productID: ProductID,
+            userID: UserID
+        })
+        console.log(data)
+        return { status: "success", data: data }
     }
     catch (e) {
-        return {status: "error", error: e.message};
+        return { status: "error", error: e.message };
     }
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { CartList, RemoveFromCart } from '../APIRequest/APIRequest';
+import { CartList, RemoveFromCart, CreatInvoice } from '../APIRequest/APIRequest';
 import { readCookie } from '../helper/cookie';
 
 const CartListPage = () => {
@@ -25,7 +25,9 @@ const CartListPage = () => {
 
     const removeFromCart = async (productID, title) => {
         if (token) {
+            console.log("ProductID:", productID, "\ntitle:",title)
             let res = await RemoveFromCart(productID, token);
+            console.log(res)
             if (res) {
                 // Remove from local state
                 setCartList(cartList.filter(item => item.Product._id !== productID));
@@ -36,8 +38,19 @@ const CartListPage = () => {
         }
     };
 
-    let checkout = ()=>{
-        alert("Checkout functionality not implemented yet.");
+    let checkout = async ()=>{
+        try {
+            let data = await CreatInvoice(token);
+            if (data && data.status === "success") {
+                // Redirect to SSLCommerz payment gateway
+                window.location.href = data.data.GatewayPageURL;
+            } else {
+                toast.error("Failed to create invoice. Please try again.");
+            }
+        } catch (error) {
+            toast.error("An error occurred during checkout. Please try again.");
+            console.error("Checkout error:", error);
+        }
     }
 
     const calculateTotal = () => {
@@ -68,6 +81,7 @@ const CartListPage = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
                         {cartList.map((item) => (
                             <Link key={item.Product._id} to={'/product/' + item.Product._id} className="block">
+                                {console.log(item)}
                                 <div className="bg-base-100 rounded-lg shadow-xl overflow-hidden hover:shadow-lg transition-shadow">
                                     <img src={item.Product.image} alt={item.Product.title} className="h-75 w-full object-cover" />
                                     <div className="p-4">
@@ -99,7 +113,7 @@ const CartListPage = () => {
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     e.stopPropagation();
-                                                    removeFromCart(item.Product._id);
+                                                    removeFromCart(item.Product._id, item.Product.title);
                                                 }}
                                             >
                                                 Remove
@@ -112,7 +126,7 @@ const CartListPage = () => {
                     </div>
                     <div className="text-center">
                         <h2 className="text-2xl font-bold">Total: ${calculateTotal()}</h2>
-                        <button className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded mt-4" onClick={checkout()}>
+                        <button className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded mt-4" onClick={() => checkout()}>
                             Proceed to Checkout
                         </button>
                     </div>

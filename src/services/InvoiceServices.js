@@ -3,7 +3,7 @@ import ProfileModel from "../models/ProfileModel.js";
 import InvoiceModel from "../models/InvoiceModel.js";
 import InvoiceProductModel from "../models/InvoiceProductModel.js";
 import mongoose from "mongoose";
-const ObjectID = new mongoose.Types.ObjectId();
+const ObjectID = mongoose.Types.ObjectId;
 import FormData from 'form-data'
 import axios from 'axios'
 import PaymentSettingsModel from "../models/PaymentSettingModel.js";
@@ -111,11 +111,11 @@ export async function CreateInvoiceService(req) {
     }
 
     //======== Step 6: Remove Carts ========//
-    try {
-        await CartModel.deleteMany({userID: user_id})
-    } catch (e) {
-        return {status: "Fail to delete Invoice from cart", data: e.message}
-    }
+    // try {
+    //     await CartModel.deleteMany({userID: user_id})
+    // } catch (e) {
+    //     return {status: "Fail to delete Invoice from cart", data: e.message}
+    // }
 
     //======== Step 7: Prepare SSL Payment ========//
     let PaymentSettings = await PaymentSettingsModel.find()

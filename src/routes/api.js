@@ -42,7 +42,7 @@ router.get("/RemoveFromWishList/:ProductID", AuthVerification, WishListControlle
 // Cart API
 router.get("/CartList", AuthVerification, CartListController.CartList)
 router.post("/AddToCart", AuthVerification, CartListController.AddToCart)
-router.get("/RemoveFromCart/:ProductID", CartListController.RemoveFromCart)
+router.get("/RemoveFromCart/:ProductID", AuthVerification, CartListController.RemoveFromCart)
 
 // Invoice API
 router.get("/CreatInvoice", AuthVerification, InvoiceController.CreateInvoice)

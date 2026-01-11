@@ -1,16 +1,14 @@
 // ✅ Set Cookie
 export function setCookie(name, value, days = 7) {
-  const expires = days
-    ? `; max-age=${days * 24 * 60 * 60}`
-    : "";
-  document.cookie = `${name}=${value}; path=/; SameSite=Lax${expires}`;
+  const maxAge = days ? `max-age=${days * 24 * 60 * 60}; ` : "";
+  document.cookie = `${name}=${value}; ${maxAge}path=/; SameSite=Lax`;
 }
 
 // ✅ Read Cookie
 export function readCookie(name) {
   const cookies = document.cookie.split("; ");
   const cookie = cookies.find(c => c.startsWith(name + "="));
-  return cookie ? cookie.split("=")[1] : null;
+  return cookie ? cookie.split("=")[1] : null;;
 }
 
 // ✅ Delete Cookie

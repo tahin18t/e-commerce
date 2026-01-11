@@ -5,7 +5,7 @@ import { FaFacebook } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { LoginRequest, VerifyLogin } from "../APIRequest/APIRequest"
-import {setCookie} from "../helper/cookie"
+import { setCookie, readCookie } from "../helper/cookie"
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -37,7 +37,6 @@ const LoginPage = () => {
 
     if (res.status === "success") {
       toast.success("Login successful!");
-      console.log("Token to save:", res.token);
       setCookie("token", res.token, 7)
 
       navigate("/");

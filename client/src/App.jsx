@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import HomePage from "./pages/HomePage"
@@ -10,7 +10,7 @@ import NotFound from './pages/NotFound'
 import ProductListPage from './pages/ProductListPage'
 import WishListPage from './pages/WishListPage'
 import { checkToken } from './APIRequest/APIRequest'
-import { deleteCookie } from './helper/cookie'
+import { readCookie, deleteCookie } from './helper/cookie'
 
 
 const App = () => {

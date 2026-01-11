@@ -10,6 +10,7 @@ const AppNav = () => {
   const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
+
     if (isDark) {
       document.documentElement.classList.add('dark');
       document.documentElement.setAttribute('data-theme', 'dark');
@@ -18,6 +19,12 @@ const AppNav = () => {
       document.documentElement.setAttribute('data-theme', 'light');
     }
   }, [isDark]);
+
+  useEffect(()=>{
+
+    setToken(readCookie("token"))
+
+  }, [])
 
   const toggleTheme = () => {
     setIsDark(!isDark);

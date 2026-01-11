@@ -1,0 +1,93 @@
+ECOMMARCH
+├── client
+│   ├── dist
+│   │   ├── assets
+│   │   ├── css
+│   │   ├── index.html
+│   │   └── vite.svg
+│   ├── public
+│   │   └── css
+│   ├── src
+│   │   ├── APIRequest
+│   │   │   └── APIRequest.jsx
+│   │   ├── assets
+│   │   │   ├── css
+│   │   │   └── images
+│   │   ├── components
+│   │   │   ├── AppNav.jsx
+│   │   │   ├── BrandList.jsx
+│   │   │   ├── CategoryList.jsx
+│   │   │   ├── footer.jsx
+│   │   │   ├── ProductList.jsx
+│   │   │   ├── ProductReview.jsx
+│   │   │   └── PtoductSlider.jsx
+│   │   ├── helper
+│   │   │   └── cookie.js
+│   │   ├── layout
+│   │   │   └── Layout.jsx
+│   │   ├── pages
+│   │   │   ├── CartListPage.jsx
+│   │   │   ├── HomePage.jsx
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── NotFound.jsx
+│   │   │   ├── ProductListPage.jsx
+│   │   │   ├── ProductPage.jsx
+│   │   │   ├── ProfilePage.jsx
+│   │   │   └── WishListPage.jsx
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── README.md
+│   ├── tailwind.config.js
+│   └── vite.config.js
+├── src
+│   ├── config
+│   ├── controllers
+│   │   ├── CartListController.js
+│   │   ├── FeaturesController.js
+│   │   ├── InvoiceController.js
+│   │   ├── ProductController.js
+│   │   ├── UserController.js
+│   │   └── WishListController.js
+│   ├── middleware
+│   │   └── AuthVerification.js
+│   ├── models
+│   │   ├── BrandModel.js
+│   │   ├── CartModel.js
+│   │   ├── CategoryModel.js
+│   │   ├── FeaturesModel.js
+│   │   ├── InvoiceModel.js
+│   │   ├── InvoiceProductModel.js
+│   │   ├── PaymentSettingModel.js
+│   │   ├── ProductDetailModel.js
+│   │   ├── ProductModel.js
+│   │   ├── ProductSliderModel.js
+│   │   ├── ProfileModel.js
+│   │   ├── ReviewModel.js
+│   │   ├── UserModel.js
+│   │   └── WishModel.js
+│   ├── routes
+│   │   └── api.js
+│   ├── services
+│   │   ├── CartListServices.js
+│   │   ├── FeaturesServices.js
+│   │   ├── InvoiceServices.js
+│   │   ├── ProductServices.js
+│   │   ├── UserServices.js
+│   │   └── WishListServices.js
+│   └── utility
+│       ├── EmailHelper.js
+│       └── TokenHelper.js
+├── .env
+├── app.js
+├── Email_SMTP.txt
+├── index.js
+├── package-lock.json
+├── package.json
+└── tree

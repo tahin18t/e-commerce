@@ -24,7 +24,16 @@ import mongoose from 'mongoose';
 
 // Security middleware Implement
 app.use(cors())
-app.use(helmet())
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-eval'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+    },
+  },
+}))
 app.use((req, res, next) => {
     const sanitizeObject = (obj) => {
         for (const key in obj) {

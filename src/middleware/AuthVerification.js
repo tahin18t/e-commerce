@@ -8,6 +8,7 @@ export default function (req, res, next){
         let decoded = DecodeToken(token);
         if(decoded === null){
             return res.status(401).json({
+                validation: false,
                 status: "fail",
                 message:"Unauthorized"
             })
@@ -19,9 +20,12 @@ export default function (req, res, next){
         }
     }
     catch (e) {
-        res.status(401).json({
+        return (
+            res.status(401).json({
+            validation: true,
             status: "fail",
             message:e.message
         })
+        )
     }
 }

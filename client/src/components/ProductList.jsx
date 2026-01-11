@@ -50,11 +50,19 @@ const ProductList = ({ products }) => {
             let res = await AddToCart(product, token);
             console.log(res)
             if (res) {
-                toast.success(`<img src="${img || '/vite.svg'}"` + title + " is added to cart!");
+                toast(
+                    (t) => (
+                        <div className="flex items-center gap-3">
+                            <img src={img || '/vite.svg'} className="w-10 h-10 rounded" />
+                            <p>{title} added to cart</p>
+                            <button onClick={() => toast.dismiss(t.id)}>✖</button>
+                        </div>
+                    ),
+                    { duration: 3000 }
+                );
             } else {
                 toast.error("Failed to add to cart");
             }
-            console.log(res);
         } else {
             toast.error("Please Login");
         }
@@ -63,25 +71,20 @@ const ProductList = ({ products }) => {
     const addToWishList = async (productID, title, img) => {
         if (token) {
             let res = await AddToWishList(productID, token);
-            console.log(res)
             if (res) {
                 toast(
                     (t) => (
                         <div className="flex items-center gap-3">
                             <img src={img || '/vite.svg'} className="w-10 h-10 rounded" />
-                            <p>{title} added successfully</p>
+                            <p>{title} added to wish list</p>
                             <button onClick={() => toast.dismiss(t.id)}>✖</button>
                         </div>
                     ),
                     { duration: 3000 }
                 );
-
-
-
             } else {
                 toast.error("Failed to add to wishlist");
             }
-            console.log(res);
         } else {
             toast.error("Please Login");
         }
