@@ -27,6 +27,10 @@ router.get("/VerifyLogin/:email/:otp", UserController.VerifyLogin)
 router.post("/UpdateProfile", AuthVerification, UserController.UpdateProfile)
 router.get("/ReadProfile", AuthVerification, UserController.ReadProfile)
 router.get("/UserLogout", AuthVerification, UserController.UserLogout)
+router.get("/checkToken", AuthVerification, (req, res) => {
+  res.status(200).json({ validation: true });
+});
+
 
 router.post("/CreateReview", AuthVerification, UserController.CreateReview)
 

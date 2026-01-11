@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+body{
+  margin-inline: min(2vw, 50px);
+}

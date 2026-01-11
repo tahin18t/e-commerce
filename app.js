@@ -1,10 +1,16 @@
 // Basic Library
 import express from "express";
-import router from'./src/routes/api.js';
+import router from './src/routes/api.js';
 const app = express();
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 dotenv.config();
+
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 // Security Middleware Library
 import rateLimit from 'express-rate-limit';
@@ -43,7 +49,7 @@ app.use(bodyParser.json())
 app.set("trust proxy", 1);
 // Request Rate limit
 const limiter = rateLimit({
-    windowMs: 15*60*1000,
+    windowMs: 15 * 60 * 1000,
     max: 100,
     standardHeaders: true,
     legacyHeaders: false
@@ -55,7 +61,7 @@ const URL = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}
 
 console.log(URL)
 let OPTIONS = {
-    autoIndex:true
+    autoIndex: true
 }
 
 mongoose.connect(URL, OPTIONS)
@@ -66,6 +72,11 @@ mongoose.connect(URL, OPTIONS)
 app.use('/api/v1', router)
 
 app.use(express.static('client/dist'))
+
+// Add React front End Routing
+app.get(/.*/, (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+});
 
 
 // Undefined Route

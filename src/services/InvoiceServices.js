@@ -2,9 +2,8 @@ import CartModel from "../models/CartModel.js";
 import ProfileModel from "../models/ProfileModel.js";
 import InvoiceModel from "../models/InvoiceModel.js";
 import InvoiceProductModel from "../models/InvoiceProductModel.js";
-import PaymentSettingModel from "../models/PaymentSettingModel.js";
 import mongoose from "mongoose";
-const ObjectID = mongoose.Types.ObjectId;
+const ObjectID = new mongoose.Types.ObjectId();
 import FormData from 'form-data'
 import axios from 'axios'
 import PaymentSettingsModel from "../models/PaymentSettingModel.js";
@@ -71,7 +70,7 @@ export async function CreateInvoiceService(req) {
     //======== Step 3: Transaction & other's ID ========//
     let trx_id = Date.now().toString()
     let val_id = 0
-    let dalivery_status = "pending"
+    let delivery_status = "pending"
     let payment_status = "pending"
 
     //======== Step 4: Create Invoice ========//
@@ -85,7 +84,7 @@ export async function CreateInvoiceService(req) {
             ship_details: ship_details,
             trx_id: trx_id,
             val_id: val_id,
-            delivery_status: dalivery_status,
+            delivery_status: delivery_status,
             payment_status: payment_status,
             total: totalAmount,
             vat: vat
@@ -96,7 +95,7 @@ export async function CreateInvoiceService(req) {
 
     //======== Step 5: Create Invoice Product ========//
     try {
-        let InvoiceProduct = await InvoiceProductModel.create(
+        let InvoiceProduct = await InvoiceProductModel.insertMany(
             CartProduct.map(Cart => ({
                 userID: user_id,
                 invoiceID: createInvoice._id,
@@ -152,10 +151,10 @@ export async function CreateInvoiceService(req) {
     form.append('ship_country', Profile[0].ship_country)
     form.append('ship_postcode', Profile[0].ship_postcode)
 
-    form.append('product_name', 'Accoriding Invoice')
-    form.append('product_category', 'Accoriding Invoice')
-    form.append('product_profile', 'Accoriding Invoice')
-    form.append('product_amount', 'Accoriding Invoice')
+    form.append('product_name', 'Accoriding to Invoice')
+    form.append('product_category', 'Accoriding to Invoice')
+    form.append('product_profile', 'Accoriding to Invoice')
+    form.append('product_amount', 'Accoriding to Invoice')
 
     let SSLRes = await axios.post(PaymentSettings[0].init_url, form)
 

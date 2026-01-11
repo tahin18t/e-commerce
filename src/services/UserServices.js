@@ -163,6 +163,7 @@ export async function VerifyOTPService(req) {
         }
         else {
             await UserModel.updateOne({ email: email }, { $set: { otp: null } })
+
             let userID = data._id.toString()
             let token = EncodeToken(email, userID)
             result = "OTP verification successful"

@@ -21,6 +21,7 @@ export async function CartListService(req) {
                 color:1,
                 qty:1,
                 size:1,
+                "Product._id":1,
                 "Product.title":1,
                 "Product.price":1,
                 "Product.discountPrice":1,

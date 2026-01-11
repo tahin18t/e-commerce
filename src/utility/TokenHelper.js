@@ -1,4 +1,6 @@
+import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
+dotenv.config();
 
 let key = process.env.JWT_SECRET_KEY;
 
