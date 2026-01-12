@@ -23,17 +23,13 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 
 // Security middleware Implement
-app.use(cors())
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-eval'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-    },
-  },
-}))
+  crossOriginResourcePolicy: false
+}));
 app.use((req, res, next) => {
     const sanitizeObject = (obj) => {
         for (const key in obj) {
@@ -59,7 +55,7 @@ app.set("trust proxy", 1);
 // Request Rate limit
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 10000,
+    max: 100,
     standardHeaders: true,
     legacyHeaders: false
 })
@@ -68,7 +64,6 @@ app.use(limiter)
 // Mongodb Database Connection
 const URL = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.CLUSTER_NAME}/${process.env.DB_NAME}?retryWrites=true&w=majority&appName=PersonalProject`;
 
-console.log(URL)
 let OPTIONS = {
     autoIndex: true
 }
@@ -80,11 +75,13 @@ mongoose.connect(URL, OPTIONS)
 // Routing Implement
 app.use('/api/v1', router)
 
-app.use(express.static('client/dist'))
+app.use(express.static(path.join(__dirname, "client/dist")));
 
 // Add React front End Routing
-app.get(/.*/, (req, res) => {
-    res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+app.use(express.static(path.join(__dirname, "client", "dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
 });
 
 
