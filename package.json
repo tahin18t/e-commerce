@@ -39,7 +39,6 @@
     "xss": "^1.0.15"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1",
-    "daisyui": "^5.5.14"
+    "concurrently": "^9.2.1"
   }
 }
