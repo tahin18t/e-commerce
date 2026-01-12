@@ -32,7 +32,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-eval'"],
-      imgSrc: ["'self'", "data:", "https:"],
+      imgSrc: ["'self'", "data:", "*"],
       styleSrc: ["'self'", "'unsafe-inline'"],
     },
   },
