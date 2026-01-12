@@ -138,7 +138,7 @@ export async function UserOTPService(req) {
 
 
         let EmailSubject = "E-commerce Verification Code"
-        // await EmailSend(email, EmailText, EmailSubject);
+        await EmailSend(email, EmailText, EmailSubject);
         await UserModel.updateOne(
             { email: email },
             { $set: { otp: code } },
