@@ -1,28 +1,30 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ProductDetails, ProductReviewList, ProductListBySimilar, CreateReview } from '../APIRequest/APIRequest'
+import { ProductDetails, ProductReviewList, ProductListBySimilar, CreateReview, AddToCart } from '../APIRequest/APIRequest'
 import ProductList from '../components/ProductList'
+import ProductReview from '../components/ProductReview'
+import { readCookie } from '../helper/cookie';
+import toast from 'react-hot-toast';
 
 const ProductPage = () => {
 
   let { productID } = useParams()
   let [product, setProduct] = useState()
-  let [reviews, setReviews] = useState([])
   let [similarProducts, setSimilarProducts] = useState([])
   useEffect(() => {
 
     (async () => {
 
-      let data = await ProductDetails(productID)
+      let data = await ProductDetails(productID);
+      let productData;
       if (data && Array.isArray(data)) {
-        setProduct(data);
-      } else if (data && data.data && Array.isArray(data.data)) {
-        setProduct(data.data[0]);
+        productData = data[0];
+      } else if (data && data.data) {
+        productData = Array.isArray(data.data) ? data.data[0] : data.data;
+      } else {
+        productData = data;
       }
-
-      data = await ProductReviewList(productID)
-      data = data.data ? data.data : data
-      setReviews(data)
+      setProduct(productData);
 
     })()
 
@@ -30,14 +32,32 @@ const ProductPage = () => {
 
   useEffect(() => {
     if (product && product.category) {
-      (async () => {
-        let similarData = await ProductListBySimilar(product.category._id)
-        if (similarData && similarData.data) {
-          setSimilarProducts(similarData.data)
-        }
-      })()
+        (async () => {
+          let similarData = await ProductListBySimilar(product.category._id)
+          if (similarData && similarData.data) {
+            setSimilarProducts(similarData.data)
+          }
+        })()
     }
   }, [product])
+
+  let token = readCookie("token");
+
+  const addToCart = async (productID, title, img) => {
+    if (token) {
+      let product = { productID, qty: 1, color: "red", size: "l" };
+      let res = await AddToCart(product, token);
+      if (res) {
+        toast.success(`${title} added to cart`);
+      } else {
+        toast.error("Failed to add to cart");
+      }
+    } else {
+      toast.error("Please login");
+    }
+  };
+
+  let productIMG = useRef()
 
   if (!product) {
     return <div className="flex justify-center items-center h-screen bg-base-100 text-base-content">Loading...</div>
@@ -49,21 +69,37 @@ const ProductPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div className="flex justify-center items-center border-2 mr-5">
             <img
+              ref={productIMG}
               src={product.image}
               alt={product.title}
-              className="rounded-lg shadow-lg object-cover w-100 h-120"
+              className="rounded-lg shadow-lg object-cover w-fit h-120"
             />
           </div>
           <div>
             <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
             <p className="text-gray-700 mb-4">{product.shortDes}</p>
-            <p className="text-lg mb-2"><strong>Price:</strong> <span className="text-green-600 font-semibold">${product.discountPrice}</span> <del className="text-gray-500">${product.price}</del></p>
+            <p className="text-lg mb-2">
+              <strong>Price:</strong>{" "}
+              {product.discountPrice && product.discountPrice !== "00" && product.discountPrice !== 0 ? (
+                <>
+                  <span className="text-green-600 font-semibold">${product.discountPrice}</span>{" "}
+                  <del className="text-gray-500">${product.price}</del>
+                </>
+              ) : (
+                <span className="text-green-600 font-semibold">${product.price}</span>
+              )}
+            </p>
             <p className="mb-2"><strong>Rating:</strong> {product.star} stars</p>
             <p className="mb-2"><strong>Stock:</strong> {product.stock}</p>
             <p className="mb-2"><strong>Remark:</strong> {product.remark}</p>
             <p className="mb-2"><strong>Brand:</strong> {product.brand.brandName}</p>
             <p className="mb-4"><strong>Category:</strong> {product.category.categoryName}</p>
-            <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Add to Cart</button>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+              onClick={() => addToCart(product._id, product.title, product.image)}
+            >
+              Add to Cart
+            </button>
           </div>
         </div>
         <div className="mt-8">
@@ -72,30 +108,14 @@ const ProductPage = () => {
           <p className="mb-2"><strong>Color:</strong> {product.details.color}</p>
           <p className="mb-4"><strong>Size:</strong> {product.details.size}</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[product.details.img1, product.details.img2, product.details.img3, product.details.img4, product.details.img5, product.details.img6, product.details.img7, product.details.img8].map((img, index) => (
-              img && <img key={index} src={img} alt={`Detail ${index + 1}`} className="w-full h-32 object-cover rounded shadow" />
+            {[product.details.img1, product.details.img2, product.details.img3, product.details.img4, product.details.img5, product.details.img6, product.details.img7, product.details.img8, product.image].map((img, index) => (
+              img && <img key={index} src={img} alt={`Detail ${index + 1}`} className="w-full h-32 object-cover rounded shadow" onClick={()=>{productIMG.current.src=img}}/>
             ))}
           </div>
         </div>
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-4">Reviews</h2>
-          {reviews.length > 0 ? (
-            reviews.map((review, index) => (
-              <div key={index} className="border-b border-gray-200 pb-4 mb-4">
-                <div className="flex items-center mb-2">
-                  <span className="font-semibold mr-2">{review.userName || 'Anonymous'}</span>
-                  <span className="text-yellow-500">
-                    {'★'.repeat(Math.floor(review.rating))}{'☆'.repeat(5 - Math.floor(review.rating))}
-                  </span>
-                  <span className="ml-2 text-sm text-gray-600">{review.rating}</span>
-                </div>
-                <p className="text-gray-700">{review.des}</p>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No reviews yet.</p>
-          )}
-        </div>
+
+        <ProductReview productID={productID} />
+
         <div className="mt-8">
           <h2 className="text-2xl font-bold mb-4">Similar Products</h2>
           <ProductList products={similarProducts} />

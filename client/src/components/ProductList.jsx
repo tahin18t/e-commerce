@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import { ProductCategoryList, ProductBrandList, AddToCart, AddToWishList } from '../APIRequest/APIRequest';
 import { readCookie } from '../helper/cookie';
+import toast from 'react-hot-toast';
 
 const ProductList = ({ products }) => {
     const [categories, setCategories] = useState([]);
@@ -14,8 +14,7 @@ const ProductList = ({ products }) => {
     const [maxPrice, setMaxPrice] = useState('');
     let token = readCookie("token")
 
-
-    //const [filter, setFilter] = useState(filterdata)
+    const isProduct = location.pathname === "/product/*";
 
     useEffect(() => {
         (async () => {
@@ -48,7 +47,6 @@ const ProductList = ({ products }) => {
         if (token) {
             let product = { productID, qty: 1, color: "red", size: "l" };
             let res = await AddToCart(product, token);
-            console.log(res)
             if (res) {
                 toast(
                     (t) => (
@@ -64,7 +62,7 @@ const ProductList = ({ products }) => {
                 toast.error("Failed to add to cart");
             }
         } else {
-            toast.error("Please Login");
+            toast.error("Please login");
         }
     };
 
@@ -92,28 +90,29 @@ const ProductList = ({ products }) => {
 
     return (
         <div className="container mx-auto px-4 bg-base-100 text-base-content min-h-screen">
-            <div className="flex flex-wrap gap-4 mb-20 justify-center">
-                <select onChange={(e) => setSelectedCategory(e.target.value)} value={selectedCategory} className="px-3 py-2 border rounded bg-base-100 text-base-content">
-                    <option value="">All Categories</option>
-                    {categories.map((cat) => (
-                        <option key={cat['_id']} value={cat.categoryName}>{cat.categoryName}</option>
-                    ))}
-                </select>
-                <select onChange={(e) => setSelectedBrand(e.target.value)} value={selectedBrand} className="px-3 py-2 border rounded bg-base-100 text-base-content">
-                    <option value="">All Brands</option>
-                    {brands.map((brand) => (
-                        <option key={brand['_id']} value={brand.brandName}>{brand.brandName}</option>
-                    ))}
-                </select>
-                <select onChange={(e) => setSelectedRemark(e.target.value)} value={selectedRemark} className="px-3 py-2 border rounded bg-base-100 text-base-content">
-                    <option value="">All Remarks</option>
-                    <option value="new">New</option>
-                    <option value="old">Old</option>
-                </select>
-                <input type="number" placeholder="Min Price" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="px-3 py-2 border rounded bg-base-100 text-base-content" />
-                <input type="number" placeholder="Max Price" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="px-3 py-2 border rounded bg-base-100 text-base-content" />
-                <button className='btn  w-full'>Filter</button>
-            </div>
+            {isProduct &&
+                <div className="flex flex-wrap gap-4 mb-20 justify-center">
+                    <select onChange={(e) => setSelectedCategory(e.target.value)} value={selectedCategory} className="px-3 py-2 border rounded bg-base-100 text-base-content">
+                        <option value="">All Categories</option>
+                        {categories.map((cat) => (
+                            <option key={cat['_id']} value={cat.categoryName}>{cat.categoryName}</option>
+                        ))}
+                    </select>
+                    <select onChange={(e) => setSelectedBrand(e.target.value)} value={selectedBrand} className="px-3 py-2 border rounded bg-base-100 text-base-content">
+                        <option value="">All Brands</option>
+                        {brands.map((brand) => (
+                            <option key={brand['_id']} value={brand.brandName}>{brand.brandName}</option>
+                        ))}
+                    </select>
+                    <select onChange={(e) => setSelectedRemark(e.target.value)} value={selectedRemark} className="px-3 py-2 border rounded bg-base-100 text-base-content">
+                        <option value="">All Remarks</option>
+                        <option value="new">New</option>
+                        <option value="old">Old</option>
+                    </select>
+                    <input type="number" placeholder="Min Price" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="px-3 py-2 border rounded bg-base-100 text-base-content" />
+                    <input type="number" placeholder="Max Price" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="px-3 py-2 border rounded bg-base-100 text-base-content" />
+                    <button className='btn  w-full'>Filter</button>
+                </div>}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
@@ -121,27 +120,35 @@ const ProductList = ({ products }) => {
                             <div className="bg-base-100 rounded-lg shadow-xl overflow-hidden hover:shadow-lg transition-shadow">
                                 <img src={product.image || '/vite.svg'} alt={product.title} className="h-75 w-full object-cover" />
                                 <div className="p-4">
-                                    <div className='flex justify-between'>
-                                        <div className="flex items-center scale-120 ms-2.5">
-                                            {Array.from({ length: 5 }, (_, i) => {
-                                                const starValue = i + 1;
-                                                if (product.star >= starValue) {
-                                                    // full star
-                                                    return <span key={i} className="text-yellow-400">★</span>;
-                                                } else if (product.star >= starValue - 0.5) {
-                                                    // half star
-                                                    return <span key={i} className="text-yellow-400">☆</span>; // You can replace with a half-star icon if using an icon library
-                                                } else {
-                                                    // empty star
-                                                    return <span key={i} className="text-gray-300">★</span>;
-                                                }
-                                            })}
+                                    <div className='flex justify-between align-middle'>
+                                        <div>
                                             <span className="ml-2 text-sm text-gray-600">{Number(product.star).toFixed(1)}</span>
+                                            <div className="flex items-center scale-120 ms-2.5">
+                                                {Array.from({ length: 5 }, (_, i) => {
+                                                    const starValue = i + 1;
+                                                    if (product.star >= starValue) {
+                                                        // full star
+                                                        return <span key={i} className="text-yellow-400">★</span>;
+                                                    } else if (product.star >= starValue - 0.5) {
+                                                        // half star
+                                                        return <span key={i} className="text-yellow-400">☆</span>; // You can replace with a half-star icon if using an icon library
+                                                    } else {
+                                                        // empty star
+                                                        return <span key={i} className="text-gray-300">★</span>;
+                                                    }
+                                                })}
+                                            </div>
                                         </div>
-                                        <div className='flex'>
-                                            <p className="text-sm text-gray-500 align-bottom pt-1 me-2 line-through"><i>${product.price}</i></p>
-                                            <h3 className="text-lg font-semibold text-success align-middle">${product.discountPrice}</h3>
-                                        </div>
+                                        <p className="text-lg mb-2">
+                                            {product.discountPrice && product.discountPrice !== "00" && product.discountPrice !== 0 ? (
+                                                <>
+                                                    <h3 className="text-lg font-semibold text-success">${product.discountPrice}</h3>
+                                                    <p className="text-sm text-gray-500 line-through"><i>${product.price}</i></p>
+                                                </>
+                                            ) : (
+                                                <span className="text-green-600 font-semibold">${product.price}</span>
+                                            )}
+                                        </p>
                                     </div>
                                     <h4 className="text-md font-medium text-base-content">{product.title}</h4>
                                     {/* <p className="text-base-content text-sm">{product.shortDes}</p> */}

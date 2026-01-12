@@ -10,7 +10,7 @@ const ProductsPage = () => {
     const [products, setProducts] = useState([]);
 
     const location = useLocation();
-    const isHome = location.pathname === "/products";
+    const isHome = location.pathname === "/";
 
     useEffect(() => {
         const categoryID = searchParams.get('category');

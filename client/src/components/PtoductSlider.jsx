@@ -19,7 +19,7 @@ const PtoductSlider = () => {
     }, [])
 
     return (
-        <div className="w-full max-w-4xl mx-auto py-8">
+        <div className="max-w-4xl mx-auto h-fit py-12">
             <Swiper
                 modules={[Autoplay]}
                 spaceBetween={10}

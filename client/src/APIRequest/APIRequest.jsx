@@ -185,8 +185,8 @@ export function RemoveFromCart(ProductID, token) {
 }
 
 // Invoice API
-export function CreatInvoice(token) {
-  let URL = baseURL + "/CreatInvoice"
+export function CreateInvoice(token) {
+  let URL = baseURL + "/CreateInvoice"
   return get(URL, { token })
 
   /**
@@ -357,6 +357,10 @@ export function CreatInvoice(token) {
 export function InvoiceList(token) {
   let URL = baseURL + "/InvoiceList"
   return get(URL, { token })
+}
+export function InvoiceProductList(token, invoiceID){
+  let URL = baseURL+"/InvoiceProductList"
+  return post(URL, {invoiceID}, {token})
 }
 // 5 more api are here
 

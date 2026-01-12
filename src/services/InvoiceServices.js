@@ -224,7 +224,33 @@ export async function InvoiceListService(req) {
 export async function InvoiceProductListService(req) {
     try {
         let invoiceID = new ObjectID(req.body.invoiceID)
-        let InvoiceProduct = await InvoiceProductModel.find({invoiceID:invoiceID})
+        let MatchStage = {$match: {invoiceID: invoiceID}}
+        let JoinWithProductStage = {
+            $lookup: {
+                from: "products",
+                localField: "productID",
+                foreignField: "_id",
+                as: "product"
+            }
+        }
+        let UnwindProductStage = {$unwind: "$product"}
+        let ProjectionStage = {
+            $project: {
+                qty: 1,
+                price: 1,
+                color: 1,
+                size: 1,
+                productID: 1,
+                "product.image": 1,
+                "product.title": 1
+            }
+        }
+        let InvoiceProduct = await InvoiceProductModel.aggregate([
+            MatchStage,
+            JoinWithProductStage,
+            UnwindProductStage,
+            ProjectionStage
+        ])
         return {status: "success", data: InvoiceProduct};
     }
     catch (error) {

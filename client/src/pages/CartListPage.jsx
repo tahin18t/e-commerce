@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { CartList, RemoveFromCart, CreatInvoice } from '../APIRequest/APIRequest';
+import { CartList, RemoveFromCart, CreateInvoice } from '../APIRequest/APIRequest';
 import { readCookie } from '../helper/cookie';
 
 const CartListPage = () => {
     const [cartList, setCartList] = useState([]);
     const [loading, setLoading] = useState(true);
     let token = readCookie("token");
+    
 
     useEffect(() => {
         if (token) {
@@ -40,7 +41,7 @@ const CartListPage = () => {
 
     let checkout = async ()=>{
         try {
-            let data = await CreatInvoice(token);
+            let data = await CreateInvoice(token);
             if (data && data.status === "success") {
                 // Redirect to SSLCommerz payment gateway
                 window.location.href = data.data.GatewayPageURL;
@@ -54,7 +55,7 @@ const CartListPage = () => {
     }
 
     const calculateTotal = () => {
-        return cartList.reduce((total, item) => total + (item.Product.discountPrice * parseInt(item.qty)), 0).toFixed(2);
+        return cartList.reduce((total, item) => total + ((parseFloat(item.Product.discountPrice && item.Product.discountPrice !== "00" && item.Product.discountPrice !== 0 ? item.Product.discountPrice : item.Product.price)) * parseInt(item.qty)), 0).toFixed(2);
     };
 
     if (loading) {
@@ -81,7 +82,6 @@ const CartListPage = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
                         {cartList.map((item) => (
                             <Link key={item.Product._id} to={'/product/' + item.Product._id} className="block">
-                                {console.log(item)}
                                 <div className="bg-base-100 rounded-lg shadow-xl overflow-hidden hover:shadow-lg transition-shadow">
                                     <img src={item.Product.image} alt={item.Product.title} className="h-75 w-full object-cover" />
                                     <div className="p-4">
@@ -100,13 +100,17 @@ const CartListPage = () => {
                                                 <span className="ml-2 text-sm text-gray-600">{Number(item.Product.star).toFixed(1)}</span>
                                             </div>
                                             <div className='flex'>
-                                                <p className="text-sm text-gray-500 align-bottom pt-1 me-2 line-through"><i>${item.Product.price}</i></p>
-                                                <h3 className="text-lg font-semibold text-success align-middle">${item.Product.discountPrice}</h3>
+                                                <p className="text-sm text-gray-500 align-bottom pt-1 me-2 line-through">
+                                                    {item.Product.discountPrice && item.Product.discountPrice !== "00" && item.Product.discountPrice !== 0 ? `$${item.Product.price}` : ""}
+                                                </p>
+                                                <h3 className="text-lg font-semibold text-success align-middle">
+                                                    ${item.Product.discountPrice && item.Product.discountPrice !== "00" && item.Product.discountPrice !== 0 ? item.Product.discountPrice : item.Product.price}
+                                                </h3>
                                             </div>
                                         </div>
                                         <h4 className="text-md font-medium text-base-content">{item.Product.title}</h4>
                                         <p className="text-sm text-gray-600">Quantity: {parseInt(item.qty)}</p>
-                                        <p className="text-sm text-gray-600">Subtotal: ${(item.Product.discountPrice * parseInt(item.qty)).toFixed(2)}</p>
+                                        <p className="text-sm text-gray-600">Subtotal: ${(parseFloat(item.Product.discountPrice && item.Product.discountPrice !== "00" && item.Product.discountPrice !== 0 ? item.Product.discountPrice : item.Product.price) * parseInt(item.qty)).toFixed(2)}</p>
                                         <div className="flex justify-center gap-0 mt-2">
                                             <button
                                                 className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded"

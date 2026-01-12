@@ -88,8 +88,6 @@ export async function DetailService(req){
             $project:{
                 'details.productID':0,
                 'details._id':0,
-                'brand._id':0,
-                'category._id':0,
                 'brandID':0,
                 'categoryID':0
             }

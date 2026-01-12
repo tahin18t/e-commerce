@@ -45,17 +45,17 @@ router.post("/AddToCart", AuthVerification, CartListController.AddToCart)
 router.get("/RemoveFromCart/:ProductID", AuthVerification, CartListController.RemoveFromCart)
 
 // Invoice API
-router.get("/CreatInvoice", AuthVerification, InvoiceController.CreateInvoice)
+router.get("/CreateInvoice", AuthVerification, InvoiceController.CreateInvoice)
 
 router.get("/InvoiceList", AuthVerification, InvoiceController.InvoiceList)
-router.get("/InvoiceProductList/:invoice_id", AuthVerification, InvoiceController.InvoiceProductList)
+// router.get("/InvoiceProductList/:invoice_id", AuthVerification, InvoiceController.InvoiceProductList)
 
 router.post("/PaymentSuccess/:trxID", InvoiceController.PaymentSuccess)
 router.post("/PaymentCancel/:trxID", InvoiceController.PaymentCancel)
 router.post("/PaymentFail/:trxID", InvoiceController.PaymentFail)
 router.post("/PaymentIPN/:trxID", InvoiceController.PaymentIPN)
 router.get("/InvoiceList", AuthVerification, InvoiceController.InvoiceList)
-router.get("/InvoiceProductList", AuthVerification, InvoiceController.InvoiceProductList)
+router.post("/InvoiceProductList", AuthVerification, InvoiceController.InvoiceProductList)
 
 // Features API
 router.get("/FeaturesList", FeaturesController.FeaturesList)

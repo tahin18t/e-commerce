@@ -9,6 +9,7 @@ import ProfilePage from './pages/ProfilePage'
 import NotFound from './pages/NotFound'
 import ProductListPage from './pages/ProductListPage'
 import WishListPage from './pages/WishListPage'
+import PurchaseHistory from './pages/PurchaseHistory'
 import { checkToken } from './APIRequest/APIRequest'
 import { readCookie, deleteCookie } from './helper/cookie'
 
@@ -37,6 +38,7 @@ const App = () => {
         <Route path='/product/:productID' element={<ProductPage />} />
         <Route path='/products' element={<ProductListPage />} />
         <Route path='/profile' element={<ProfilePage />} />
+        <Route path='/history' element={<PurchaseHistory />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
