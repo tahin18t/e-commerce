@@ -28,8 +28,15 @@ app.use(cors({
   credentials: true
 }));
 app.use(helmet({
-  crossOriginResourcePolicy: false
-}));
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-eval'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+    },
+  },
+}))
 app.use((req, res, next) => {
     const sanitizeObject = (obj) => {
         for (const key in obj) {
@@ -78,11 +85,10 @@ app.use('/api/v1', router)
 app.use(express.static(path.join(__dirname, "client/dist")));
 
 // Add React front End Routing
-app.use(express.static(path.join(__dirname, "client/dist")));
+app.use(express.static(path.join(__dirname, "client", "dist")));
 
-/* ⚠️ EXPRESS 5 SAFE FALLBACK */
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "client/dist/index.html"));
+app.get("/:path**", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
 });
 
 
