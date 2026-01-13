@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 //const baseURL = "https://e-commerce-jzm6.onrender.com/api/v1"
-const baseURL = "/api/v1"
+const baseURL = "https://e-commerce18t.onrender.com/api/v1"
+//const baseURL = "http://localhost:5000api/v1"
 
 async function get(URL, headers = null) {
   try {
