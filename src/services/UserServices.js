@@ -155,7 +155,9 @@ export async function VerifyOTPService(req) {
     try {
         let email = req.params.email;
         let otp = req.params.otp;
+        console.log("From VerifyOTPService " + email + " " +otp)
         let data = await UserModel.findOne({ email: email, otp: otp })
+        console.log("From VerifyOTPService " + data)
         let result;
         if (!data) {
             result = "OTP verification failed"

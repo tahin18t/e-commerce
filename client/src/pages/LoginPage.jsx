@@ -32,6 +32,7 @@ const LoginPage = () => {
   const verifyLogin = async () => {
     if (!email || !otp) return toast.error("Fill all fields!");
 
+    console.log("Request for verify", email, otp)
     const res = await VerifyLogin(email, otp);
     console.log("VerifyLogin response:", res);
 

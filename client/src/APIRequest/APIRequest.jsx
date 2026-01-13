@@ -100,6 +100,7 @@ export function LoginRequest(email) {
 }
 export function VerifyLogin(email, otp) {
   let URL = baseURL + "/VerifyLogin/" + email + "/" + otp
+  console.log(URL)
   return get(URL)
 }
 export function ReadProfile(token) {
