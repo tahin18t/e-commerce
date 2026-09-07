@@ -11,8 +11,18 @@ export async function WishListService(req) {
         const productIDs = wishListItems.map(item => item.productID);
         const data = await ProductModel.find(
             { _id: { $in: productIDs } },
-            'title shortDes price discountPrice image stock remark _id' // only the fields you want
-        );
+            {
+                _id: 1,
+                title: 1,
+                shortDes: 1,
+                price: 1,
+                discountPrice: 1,
+                image: 1,
+                star: 1,
+                stock: 1,
+                remark: 1,
+            }
+        ).lean();
 
         /*
         let MatchStage = {

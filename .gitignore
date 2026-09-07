@@ -5,6 +5,17 @@
 
 # Dependencies
 node_modules/
+node_module/
+
+# Local project artifacts
+.ide/
+*.tgz
+tree/
+test-api
+test-api.js
+Future_Upgrade*
+FUTURE_UPGRADES.md
+Log/
 
 # Build and coverage output
 dist/

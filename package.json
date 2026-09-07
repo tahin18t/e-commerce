@@ -1,13 +1,12 @@
 {
   "name": "ecommarch",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
     "dev:all": "concurrently \"node --watch index.js\" \"cd client && npm run dev\"",
-    "seed:product-details": "node scripts/seed-product-details.js",
     "install-client": "cd client && npm install",
     "build-client": "cd client && npm run build",
     "build": "npm install && npm run install-client && npm run build-client",
