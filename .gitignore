@@ -10,7 +10,7 @@ node_module/
 # Local project artifacts
 .ide/
 *.tgz
-tree/
+tree
 test-api
 test-api.js
 Future_Upgrade*
