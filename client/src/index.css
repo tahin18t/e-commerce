@@ -5,6 +5,40 @@
   display: none;
 }
 
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
 body{
   margin-inline: min(2vw, 50px);
+}
+
+/* Prevent horizontal scrolling on small devices caused by wide elements */
+html, body, #root {
+  box-sizing: border-box;
+  overflow-x: clip;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+@media print {
+  body.print-order-page nav,
+  body.print-order-page footer {
+    display: none !important;
+  }
+
+  body.print-order-page,
+  body.print-order-page .print-confirmation {
+    margin: 0;
+    min-height: auto;
+    background: white;
+    color: black;
+  }
+
+  body.print-order-page .print-confirmation {
+    padding: 0;
+  }
 }

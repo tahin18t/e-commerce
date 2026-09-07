@@ -84,7 +84,6 @@ export async function RemoveFromCartService(req) {
             productID: ProductID,
             userID: UserID
         })
-        console.log(data)
         return { status: "success", data: data }
     }
     catch (e) {

@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
-import { readCookie } from '../helper/cookie'
-import { ReadProfile, UpdateProfile } from '../APIRequest/APIRequest'
+import { ReadProfile, UpdateProfile, checkToken } from '../APIRequest/APIRequest'
 import { AiOutlineClose, AiOutlineEdit } from 'react-icons/ai'
 import Layout from '../layout/Layout'
 
 const ProfilePage = () => {
-  const token = readCookie("token")
-  console.log("Token read from cookie:", token)
-  // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNoYWhyaWFyQGdtYWlsLmNvbSIsInVzZXJfaWQiOiI2OGJkOWViMjk0NWRiZjhjOTAwMzVlZTgiLCJpYXQiOjE3Njc5NTcyOTksImV4cCI6MTc2ODA0MzY5OX0.x1YHmkJupCE8E2ttKJg3O7EX1NEG7WSYEId7zbRZnko"
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(null)
   const [isEditingUser, setIsEditingUser] = useState(false)
   const [showDeliveryModal, setShowDeliveryModal] = useState(false)
   const [isEditingDelivery, setIsEditingDelivery] = useState(false)
@@ -18,13 +15,16 @@ const ProfilePage = () => {
   const [deliveryForm, setDeliveryForm] = useState({})
 
   useEffect(() => {
-    if (!token) {
-      console.log("No token found in cookie")
-      return
-    }
     (async () => {
-      const userData = await ReadProfile(token)
-      console.log("ReadProfile response:", userData)
+      const auth = await checkToken();
+      if (!auth?.validation) {
+        setIsAuthenticated(false)
+        setLoading(false)
+        return
+      }
+      setIsAuthenticated(true)
+
+      const userData = await ReadProfile()
       if (userData && userData.status === 'success') {
         const profileData = userData.data || {}
         setUser(profileData)
@@ -50,7 +50,7 @@ const ProfilePage = () => {
       }
       setLoading(false)
     })()
-  }, [token])
+  }, [])
 
   const handleUserEdit = () => {
     setIsEditingUser(!isEditingUser)
@@ -58,7 +58,7 @@ const ProfilePage = () => {
 
   const handleUserSave = async () => {
     const updatedUser = { ...user, ...userForm }
-    const result = await UpdateProfile(updatedUser, token)
+    const result = await UpdateProfile(updatedUser)
     if (result) {
       setUser(updatedUser)
       setIsEditingUser(false)
@@ -74,7 +74,7 @@ const ProfilePage = () => {
 
   const handleDeliverySave = async () => {
     const updatedUser = { ...user, ...deliveryForm }
-    const result = await UpdateProfile(updatedUser, token)
+    const result = await UpdateProfile(updatedUser)
     if (result) {
       setUser(updatedUser)
       setIsEditingDelivery(false)
@@ -92,19 +92,20 @@ const ProfilePage = () => {
     setDeliveryForm({ ...deliveryForm, [e.target.name]: e.target.value })
   }
 
-  if (!token) return <div>Please login to view your profile.</div>
-  if (loading) return <div>Loading...</div>
+  if (loading) return <Layout><div className="min-h-[60vh] bg-base-100 text-base-content flex items-center justify-center"><p className="text-base-content/60">Loading your profile...</p></div></Layout>
+  if (!isAuthenticated) return <Layout><div className="min-h-[60vh] bg-base-100 text-base-content flex items-center justify-center"><p>Please login to view your profile.</p></div></Layout>
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 bg-base-100 text-base-content">
-        <h1 className="text-3xl font-bold mb-6">Profile</h1>
+      <main className="min-h-screen bg-base-100 text-base-content">
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-8"><p className="text-sm font-semibold uppercase tracking-widest text-primary">Account center</p><h1 className="mt-2 text-3xl font-bold sm:text-4xl">Your profile</h1><p className="mt-2 text-base-content/60">Keep your contact and delivery information up to date.</p></div>
 
-        <div className="bg-base-200 p-6 rounded-lg shadow-md mb-6">
-          <h2 className="text-2xl font-semibold mb-4">User Information</h2>
+        <div className="rounded-2xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-8">
+          <div className="mb-6 flex items-center justify-between border-b border-base-300 pb-5"><div><p className="text-sm text-primary">Personal details</p><h2 className="mt-1 text-2xl font-semibold">User information</h2></div><span className="rounded-full bg-base-200 px-3 py-1 text-xs text-base-content/60">Private</span></div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium">Name</label>
+              <label className="block text-sm font-medium text-base-content/60">Name</label>
               {isEditingUser ? (
                 <input type="text" name="cus_name" value={userForm.cus_name} onChange={handleUserChange} className="w-full px-3 py-2 border rounded bg-base-100 text-base-content" />
               ) : (
@@ -181,15 +182,16 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        <div className="text-center">
-          <button onClick={() => setShowDeliveryModal(true)} className="bg-accent hover:bg-accent text-accent-content py-2 px-4 rounded">
-            Delivery Option
+        <div className="mt-6 rounded-2xl border border-base-300 bg-base-200 p-6 text-center sm:p-8">
+          <p className="text-sm text-primary">Delivery preferences</p><h2 className="mt-1 text-xl font-semibold">Where should we deliver?</h2><p className="mx-auto mt-2 max-w-md text-sm text-base-content/60">Review or update the shipping address used for your orders.</p>
+          <button onClick={() => setShowDeliveryModal(true)} className="mt-5 rounded-xl bg-accent px-5 py-3 font-semibold text-accent-content transition hover:brightness-110">
+            Manage delivery address
           </button>
         </div>
 
         {showDeliveryModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-base-100 p-6 rounded-lg shadow-lg max-w-md w-full relative">
+            <div className="bg-base-100 p-6 rounded-2xl shadow-2xl max-w-md w-[calc(100%-2rem)] relative">
               <button onClick={() => setShowDeliveryModal(false)} className="absolute top-2 right-2 text-base-content hover:text-error">
                 <AiOutlineClose size={24} />
               </button>
@@ -267,6 +269,7 @@ const ProfilePage = () => {
           </div>
         )}
       </div>
+      </main>
     </Layout>
   )
 }

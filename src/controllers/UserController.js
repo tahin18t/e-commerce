@@ -8,13 +8,12 @@ import {
 
 export async function UserOTP(req, res) {
     let result = await UserOTPService(req)
+    console.log(result)
     return res.status(200).json(result)
 }
 
 export async function VerifyLogin(req, res) {
-    console.log("From VerifyLogin "+ req.params.email + " " +req.params.otp)
     let result = await VerifyOTPService(req)
-    console.log("From VerifyLogin " + result)
     if (result.status === "success") {
 
         // Set Cookie

@@ -5,26 +5,33 @@ import { FaFacebook } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { LoginRequest, VerifyLogin } from "../APIRequest/APIRequest"
-import { setCookie, readCookie } from "../helper/cookie"
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [generatedOtp, setGeneratedOtp] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const sendOTP = async () => {
     setOtp("")
+    setGeneratedOtp("")
+    setEmailSent(false)
     if (!email) return toast.error("Enter email first!");
 
     setLoading(true);
     try {
       const res = await LoginRequest(email)
-      console.log("Login request Response: " + res)
-      if (res.status === 200) toast.success("OTP sent successfully!");
+      if (res && res.status === "success") {
+        setGeneratedOtp(res.data?.otp || "")
+        setEmailSent(res.data?.emailSent === true)
+        toast.success(res.data?.emailSent ? "OTP sent successfully!" : "OTP generated for this showcase");
+      } else {
+        toast.error(res?.message || "Failed to send OTP");
+      }
     } catch (err) {
-      toast.error("Failed to send OTP");
-      console.error(err);
+      toast.error(`Failed to send OTP: ${err.message}`);
     }
     setLoading(false);
   };
@@ -32,14 +39,10 @@ const LoginPage = () => {
   const verifyLogin = async () => {
     if (!email || !otp) return toast.error("Fill all fields!");
 
-    console.log("Request for verify", email, otp)
     const res = await VerifyLogin(email, otp);
-    console.log("VerifyLogin response:", res);
 
-    if (res.status === "success") {
+    if (res?.status === "success") {
       toast.success("Login successful!");
-      setCookie("token", res.token, 7)
-
       navigate("/");
     } else {
       toast.error("OTP verification failed!");
@@ -91,22 +94,40 @@ const LoginPage = () => {
 
           {/* SOCIAL LOGIN */}
           <div className="flex gap-4 w-full justify-center">
-            <button className="btn btn-outline flex items-center gap-2">
+            <button
+              onClick={() => window.location.href = '/api/v1/auth/google'}
+              className="btn btn-outline flex items-center gap-2"
+            >
               <FcGoogle size={22} /> Google
             </button>
-            <button className="btn btn-outline flex items-center gap-2">
+            <button 
+              onClick={() => window.location.href = '/api/v1/auth/facebook'}
+              className="btn btn-outline flex items-center gap-2">
               <FaFacebook size={22} className="text-blue-600" /> Facebook
             </button>
           </div>
         </div>
 
-        {/* RIGHT SECTION (IMAGE SIDE) */}
-        <div className="w-1/2 sm:hidden lg:flex">
-          <img
-            src="/mnt/data/31805291-5240-4910-a622-e1b0ee80e676.png"
-            alt="Login visual"
-            className="w-full h-full object-cover"
-          />
+        {/* RIGHT SECTION (SHOWCASE OTP) */}
+        <div className="hidden lg:flex w-1/2 bg-neutral text-neutral-content p-10 flex-col justify-center">
+          <p className="text-sm uppercase tracking-[0.2em] text-accent">Demo access</p>
+          <h3 className="text-3xl font-bold mt-3">Your verification code</h3>
+          <p className="mt-3 text-neutral-content/70">
+            Request an OTP and use the code shown here to complete the showcase login.
+          </p>
+          <div className="mt-8 rounded-xl bg-neutral-content/10 border border-neutral-content/20 p-6 text-center">
+            <p className="text-xs uppercase tracking-widest text-neutral-content/60">One-time password</p>
+            <p className="text-4xl font-mono font-bold tracking-[0.35em] mt-3 min-h-12">
+              {generatedOtp || "------"}
+            </p>
+            <p className="text-sm mt-4 text-neutral-content/70">
+              {generatedOtp
+                ? emailSent
+                  ? "The code was also sent to your email."
+                  : "Email delivery is unavailable, so use this showcase code."
+                : "The code will appear after you request it."}
+            </p>
+          </div>
         </div>
 
       </div>

@@ -8,6 +8,7 @@ export async function UserOTPService(req) {
 
     try {
         let email = req.params.email;
+        console.log(`Requested Mail: ${email}`)
         let code = Math.floor(100000 + Math.random() * 900000);
         let EmailText = `
 <!DOCTYPE html>
@@ -138,13 +139,23 @@ export async function UserOTPService(req) {
 
 
         let EmailSubject = "E-commerce Verification Code"
-        await EmailSend(email, EmailText, EmailSubject);
+        console.log("Requested for send mail")
+        let isSend = await EmailSend(email, EmailText, EmailSubject);
+        console.log(isSend)
+
         await UserModel.updateOne(
             { email: email },
             { $set: { otp: code } },
             { upsert: true }
         )
-        return { status: "success", data: "6 Digit OTP Has Been Send" }
+          return {
+            status: "success",
+            data: {
+              message: "6 Digit OTP has been generated",
+              otp: String(code),
+              emailSent: isSend?.status !== "error"
+            }
+          }
     }
     catch (error) {
         return { status: "error", message: error.message }
@@ -155,9 +166,7 @@ export async function VerifyOTPService(req) {
     try {
         let email = req.params.email;
         let otp = req.params.otp;
-        console.log("From VerifyOTPService " + email + " " +otp)
         let data = await UserModel.findOne({ email: email, otp: otp })
-        console.log("From VerifyOTPService " + data)
         let result;
         if (!data) {
             result = "OTP verification failed"

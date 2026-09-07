@@ -2,8 +2,15 @@ import {DecodeToken} from "../utility/TokenHelper.js";
 export default function (req, res, next){
     try {
         let token = req.headers.token;
-        if(!token){
+        if(!token && req.cookies){
             token = req.cookies.token;
+        }
+        if(!token){
+            return res.status(401).json({
+                validation: false,
+                status: "fail",
+                message:"Unauthorized"
+            })
         }
         let decoded = DecodeToken(token);
         if(decoded === null){
@@ -22,7 +29,7 @@ export default function (req, res, next){
     catch (e) {
         return (
             res.status(401).json({
-            validation: true,
+            validation: false,
             status: "fail",
             message:e.message
         })

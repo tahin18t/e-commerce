@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation } from "react-router-dom";
-import { useSearchParams } from 'react-router-dom'
 import { ProductListByCategory, ProductListByBrand, ProductSearch, ProductListByFilter } from '../APIRequest/APIRequest'
 import ProductList from '../components/ProductList'
 import Layout from '../layout/Layout'
 
 const ProductsPage = () => {
-    const [searchParams] = useSearchParams();
     const [products, setProducts] = useState([]);
 
     const location = useLocation();
+    const queryString = location.search;
+    const queryParams = new URLSearchParams(queryString);
+    const categoryID = queryParams.get('category');
+    const brandID = queryParams.get('brand');
+    const search = queryParams.get('search');
     const isHome = location.pathname === "/";
 
     useEffect(() => {
-        const categoryID = searchParams.get('category');
-        const brandID = searchParams.get('brand');
-        const search = searchParams.get('search');
-
         let filter = {
             "minPrice": 0,
             "maxPrice": null,
@@ -40,20 +39,21 @@ const ProductsPage = () => {
             }
 
             if (data && Array.isArray(data)) {
-                setProducts(data);
+                // On homepage show a limited set to avoid listing everything
+                setProducts(isHome ? data.slice(0, 12) : data);
             } else if (data && data.data && Array.isArray(data.data)) {
-                setProducts(data.data);
+                setProducts(isHome ? data.data.slice(0, 12) : data.data);
             } else {
                 setProducts([]);
             }
         })();
-    }, [searchParams]);
+    }, [categoryID, brandID, search, isHome]);
 
-    return isHome ? (
-    <ProductList products={products} filter />
+        return isHome ? (
+        <ProductList key={queryString} products={products} filter />
   ) : (
     <Layout>
-      <ProductList products={products} />
+            <ProductList key={queryString} products={products} />
     </Layout>
   );
 }

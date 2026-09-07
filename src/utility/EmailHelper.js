@@ -26,14 +26,12 @@ export default async function EmailSend(EmailTo, EmailText, EmailSubject) {
 
     // Try transports in sequence
     try {
-        return await gmailTransport.sendMail({ ...senderOptions, from: process.env.GMAIL_EMAIL });
+        return await mailtrapTransport.sendMail({ ...senderOptions, from: process.env.MAIL_TRAP_EMAIL });
     } catch (err1) {
-        console.log("Gmail Failed ❌", err1.message);
         try {
-            return await mailtrapTransport.sendMail({ ...senderOptions, from: process.env.MAIL_TRAP_EMAIL });
+            return await gmailTransport.sendMail({ ...senderOptions, from: process.env.GMAIL_EMAIL });
         } catch (err3) {
-            console.log("Mailtrap Failed ❌", err3.message);
-            return { status: "error", message: "All email transports failed", logs: [err1.message, err2.message, err3.message] };
+            return { status: "error", message: "All email transports failed", logs: [err1.message, err3.message] };
         }
     }
 }

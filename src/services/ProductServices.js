@@ -12,7 +12,7 @@ export async function BrandListService(){
         return {status: "success", data: data}
     }
     catch(err){
-        return {status: "error", error: err}
+        return {status: "error", error: err.message}
     }
 }
 export async function CategoryListService(){
@@ -21,7 +21,7 @@ export async function CategoryListService(){
         return {status: "success",data: data}
     }
     catch(err){
-        return {status: "error",error: err}
+        return {status: "error",error: err.message}
     }
 }
 export async function SliderListService(){
@@ -29,7 +29,7 @@ export async function SliderListService(){
         let data = await ProductSliderModel.find(undefined, undefined, undefined);
         return {status: "success",data: data}
     } catch(err){
-        return {status: "error", error: err}
+        return {status: "error", error: err.message}
     }
 }
 export async function ListByBrandService(req) {
@@ -48,10 +48,10 @@ export async function ListByKeywordService(req){
             {shortDes:SearchRegex}
         ]
     }
-    return await getProductsByFilter(MatchCondition)
+    return await getProductsByFilter([{$match: MatchCondition}])
 }
 export async function ListByRemarkService(req){
-    return await getProductsByFilter({remark:req.params.Remark})
+    return await getProductsByFilter([{$match: {remark:req.params.Remark}}])
 }
 export async function DetailService(req){
     try {

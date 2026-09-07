@@ -33,7 +33,6 @@ const PtoductSlider = () => {
             >
                 {sliderData.map((item) => (
                     <SwiperSlide key={item._id}>
-                        {console.log("Slider data:"+item)}
                         <Link to={`/product/${item.productID}`}>
                             <img
                                 src={item.img}

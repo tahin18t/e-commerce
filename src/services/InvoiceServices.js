@@ -126,10 +126,19 @@ export async function CreateInvoiceService(req) {
     form.append('total_amount', payable.toString())
     form.append('currency', PaymentSettings[0].currency)
     form.append('tran_id', trx_id)
-    form.append('success_url', `${PaymentSettings[0].success_url}/${trx_id}`)
-    form.append('fail_url', `${PaymentSettings[0].fail_url}/${trx_id}`)
-    form.append('cancel_url', `${PaymentSettings[0].cancel_url}/${trx_id}`)
-    form.append('ipn_url', PaymentSettings[0].ipn_url)
+    const buildResultUrl = (baseUrl, status) => {
+        if (!baseUrl) return ''
+        const normalized = baseUrl.replace(/\/+$/, '')
+
+        return `${normalized}/${status}/${trx_id}`
+    }
+
+    const paymentRedirectBase = PaymentSettings[0].success_url
+        .replace(/\/PaymentSuccess\/?$/, '/PaymentResultRedirect')
+    form.append('success_url', buildResultUrl(paymentRedirectBase, 'success'))
+    form.append('fail_url', buildResultUrl(paymentRedirectBase, 'fail'))
+    form.append('cancel_url', buildResultUrl(paymentRedirectBase, 'cancel'))
+    form.append('ipn_url', PaymentSettings[0].ipn_url || `${PaymentSettings[0].cancel_url}/ipn/${trx_id}`)
 
     form.append('cus_name', Profile[0].cus_name)
     form.append('cus_email', cus_email)
@@ -156,9 +165,39 @@ export async function CreateInvoiceService(req) {
     form.append('product_profile', 'Accoriding to Invoice')
     form.append('product_amount', 'Accoriding to Invoice')
 
-    let SSLRes = await axios.post(PaymentSettings[0].init_url, form)
+    try {
+        const gatewayUrl = PaymentSettings[0].init_url.replace('/v3/api.php', '/v4/api.php');
 
-    return {status: "success", data: SSLRes.data}
+    let SSLRes = await axios.post(gatewayUrl, form, {
+            headers: form.getHeaders()
+        })
+
+        if (!SSLRes?.data) {
+            return {status: "failed", message: "Payment gateway did not return a response."}
+        }
+
+        if (typeof SSLRes.data === 'string') {
+            const body = SSLRes.data
+            if (body.includes('API Endpoint Update Notice')) {
+                return {
+                    status: 'failed',
+                    message: 'Payment gateway endpoint has changed to v4. Update init_url to https://sandbox.sslcommerz.com/gwprocess/v4/api.php.'
+                }
+            }
+            return {status: 'failed', message: 'Payment gateway returned an unexpected HTML response.'}
+        }
+
+        if (!SSLRes.data.GatewayPageURL) {
+            return {status: 'failed', message: 'Payment gateway did not return a valid checkout URL.'}
+        }
+
+        return {status: "success", data: SSLRes.data}
+    } catch (error) {
+        return {
+            status: "failed",
+            message: error.response?.data || error.message || 'Payment gateway request failed.'
+        }
+    }
 }
 
 export async function PaymentSuccessService(req) {
@@ -252,6 +291,88 @@ export async function InvoiceProductListService(req) {
             ProjectionStage
         ])
         return {status: "success", data: InvoiceProduct};
+    }
+    catch (error) {
+        return {status: error, data: error.message};
+    }
+}
+
+export async function InvoiceDetailService(req) {
+    try {
+        let invoiceID = new ObjectID(req.params.invoiceID)
+        let invoice = await InvoiceModel.findById(invoiceID).lean()
+        if (!invoice) return {status: "failed", message: "Invoice not found"}
+
+        if (invoice.userID.toString() !== req.headers.user_id) {
+            return {status: "failed", message: "Unauthorized"}
+        }
+
+        let invoiceProducts = await InvoiceProductModel.aggregate([
+            { $match: { invoiceID: invoiceID } },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productID",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            { $unwind: "$product" },
+            {
+                $project: {
+                    qty: 1,
+                    price: 1,
+                    color: 1,
+                    size: 1,
+                    productID: 1,
+                    "product.image": 1,
+                    "product.title": 1
+                }
+            }
+        ])
+
+        return {status: "success", data: { invoice, products: invoiceProducts }}
+    }
+    catch (error) {
+        return {status: error, data: error.message};
+    }
+}
+
+export async function InvoiceDetailByTrxService(req) {
+    try {
+        let trxID = req.params.trxID
+        let invoice = await InvoiceModel.findOne({ trx_id: trxID }).lean()
+        if (!invoice) return {status: "failed", message: "Invoice not found"}
+
+        if (invoice.userID.toString() !== req.headers.user_id) {
+            return {status: "failed", message: "Unauthorized"}
+        }
+
+        let invoiceProducts = await InvoiceProductModel.aggregate([
+            { $match: { invoiceID: invoice._id } },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productID",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            { $unwind: "$product" },
+            {
+                $project: {
+                    qty: 1,
+                    price: 1,
+                    color: 1,
+                    size: 1,
+                    productID: 1,
+                    "product.image": 1,
+                    "product.title": 1
+                }
+            }
+        ])
+
+        return {status: "success", data: { invoice, products: invoiceProducts }}
     }
     catch (error) {
         return {status: error, data: error.message};

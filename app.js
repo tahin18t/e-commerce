@@ -1,10 +1,14 @@
 // Basic Library
 import express from "express";
 import router from './src/routes/api.js';
+import passport from 'passport';
+import './src/config/passport.js';
 const app = express();
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 dotenv.config();
+import cookieParser from 'cookie-parser';
+import fs from "node:fs"
 
 import path from "path";
 import { fileURLToPath } from "url";
@@ -23,20 +27,24 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 
 // Security middleware Implement
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-eval'"],
-      imgSrc: ["'self'", "data:", "*"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-    },
-  },
-}))
+app.use(cors(
+    {
+        origin: true,
+        credentials: true
+    }
+));
+app.use(helmet(
+    {
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+                scriptSrc: ["'self'", "'unsafe-eval'"],
+                imgSrc: ["'self'", "data:", "*"],
+                styleSrc: ["'self'", "'unsafe-inline'"],
+            },
+        },
+    }
+))
 app.use((req, res, next) => {
     const sanitizeObject = (obj) => {
         for (const key in obj) {
@@ -54,20 +62,35 @@ app.use((req, res, next) => {
 })
 app.use(hpp(undefined))
 
+//API Log
+const logDirectory = path.join(__dirname, "Log");
+const apiLogFile = path.join(logDirectory, "APIlog.txt");
+fs.mkdirSync(logDirectory, { recursive: true });
+
+app.use((req, res, next)=>{
+    fs.appendFile(apiLogFile, `${Date.now()}\t${req.method} \t${req.url}\n`, "utf-8", (error) => {
+        if (error) console.error("API log write failed:", error.message)
+    })
+    next()
+})
+
+app.use(passport.initialize())
+
 // Body Parser Implement
 app.use(bodyParser.json())
+app.use(cookieParser())
 
 // Set trust proxy
 app.set("trust proxy", 1);
 // Request Rate limit
 const limiter = rateLimit({
     windowMs: 15 * 60 * 10000,
-    max: 100,
+    max: 10000,
     standardHeaders: true,
     legacyHeaders: false
 })
-app.use(limiter)
-
+app.use(limiter) 
+// mongodb+srv://tahin18t:0990@personalproject.dyexs2z.mongodb.net/?appName=PersonalProject
 // Mongodb Database Connection
 const URL = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.CLUSTER_NAME}/${process.env.DB_NAME}?retryWrites=true&w=majority&appName=PersonalProject`;
 
@@ -79,17 +102,16 @@ mongoose.connect(URL, OPTIONS)
     .then(() => console.log("Database Connected Successfully"))
     .catch((error) => console.log("Database Connection Failed:", error));
 
+
 // Routing Implement
 app.use('/api/v1', router)
 
-app.use(express.static(path.join(__dirname, "client/dist")));
-
 // Add React front End Routing
-app.use(express.static(path.join(__dirname, "client/dist")));
+app.use(express.static('client/dist'))
 
 /* ⚠️ EXPRESS 5 SAFE FALLBACK */
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "client/dist/index.html"));
+app.get(/.*/, (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
 });
 
 
@@ -109,4 +131,3 @@ app.use('*', (req, res) => {
 })
  */
 export default app;
-

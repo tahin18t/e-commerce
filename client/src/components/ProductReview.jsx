@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { ProductReviewList, CreateReview } from '../APIRequest/APIRequest'
-import { readCookie } from '../helper/cookie'
+import { ProductReviewList, CreateReview, checkToken } from '../APIRequest/APIRequest'
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 const ProductReview = ({ productID }) => {
-    let token = readCookie("token")
+    const [isAuthenticated, setIsAuthenticated] = useState(null)
     const navigate = useNavigate();
 
     let [reviews, setReviews] = useState([])
@@ -14,52 +13,47 @@ const ProductReview = ({ productID }) => {
     let [submitting, setSubmitting] = useState(false)
 
     useEffect(() => {
-
         (async () => {
-            console.log("Product ID:", productID)
             let data = await ProductReviewList(productID)
-            console.log("data:", data)
             data = data.data ? data.data : data
-            console.log("data:", data)
             setReviews(data)
-            console.log("reviews:", reviews)
-        })()
 
+            const auth = await checkToken()
+            setIsAuthenticated(Boolean(auth?.validation))
+        })()
     }, [productID])
 
     const submitReview = async () => {
-        if (token) {
-            if (!message.trim()) {
-                toast.error("Please enter a review message.");
-                return;
-            }
-            setSubmitting(true);
-            let reviewInfo = {
-                productID,
-                des: message,
-                rating: rating.toString()
-            }
-            try {
-                let res = await CreateReview(reviewInfo, token);
-                if (res) {
-                    toast.success("Review submitted successfully!");
-                    setMessage("");
-                    setRating(5);
-                    // Refetch reviews
-                    let data = await ProductReviewList(productID);
-                    data = data.data ? data.data : data;
-                    setReviews(data);
-                } else {
-                    toast.error("Failed to submit review.");
-                }
-            } catch (error) {
-                toast.error("An error occurred. Please try again.");
-                console.error("Submit review error:", error);
-            } finally {
-                setSubmitting(false);
-            }
-        } else {
+        if (!isAuthenticated) {
             navigate('/login');
+            return;
+        }
+        if (!message.trim()) {
+            toast.error("Please enter a review message.");
+            return;
+        }
+        setSubmitting(true);
+        let reviewInfo = {
+            productID,
+            des: message,
+            rating: rating.toString()
+        }
+        try {
+            let res = await CreateReview(reviewInfo);
+            if (res) {
+                toast.success("Review submitted successfully!");
+                setMessage("");
+                setRating(5);
+                let data = await ProductReviewList(productID);
+                data = data.data ? data.data : data;
+                setReviews(data);
+            } else {
+                toast.error("Failed to submit review.");
+            }
+        } catch (error) {
+            toast.error("An error occurred. Please try again. "+ error.message);
+        } finally {
+            setSubmitting(false);
         }
     }
 
