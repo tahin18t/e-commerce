@@ -6,6 +6,16 @@ import {
     CreateReviewService
 } from "../services/UserServices.js"
 
+// The Vercel frontend and Render API use different origins.  In production the
+// auth cookie must explicitly allow cross-origin requests, otherwise browsers
+// will store it but omit it from requests such as /checkToken.
+const authCookieOptions = (maxAge) => ({
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge,
+})
+
 export async function UserOTP(req, res) {
     let result = await UserOTPService(req)
     console.log(result)
@@ -17,21 +27,13 @@ export async function VerifyLogin(req, res) {
     if (result.status === "success") {
 
         // Set Cookie
-        let cookieOptions = {
-            expires: new Date(Date.now()+24*60*60*1000),
-            httpOnly: true,
-        }
-        res.cookie('token', result.token, cookieOptions)
+        res.cookie('token', result.token, authCookieOptions(24 * 60 * 60 * 1000))
     }
     return res.status(200).json(result)
 }
 
 export async function UserLogout(req, res) {
-    let cookieOptions = {
-        expires: new Date(Date.now()-24*60*60*1000),
-        httpOnly: true,
-    }
-    res.cookie('token', "", cookieOptions)
+    res.cookie('token', "", authCookieOptions(0))
     return res.status(200).json({status: "Logout Successful"})
 }
 

@@ -52,15 +52,15 @@ npm run dev:all
 
 ## API configuration
 
-The API client uses `/api/v1` by default. This is ideal for local development because Vite forwards the request to the Express server.
-
-To point a deployed frontend at another API, create `client/.env.local`:
+The API client reads its base URL from `VITE_API_BASE_URL`. The local `client/.env` file is configured for the API server on port `5020`:
 
 ```dotenv
-VITE_API_BASE_URL=https://api.example.com/api/v1
+VITE_API_BASE_URL=http://localhost:5020/api/v1
 ```
 
-`VITE_*` values are embedded in the client build. Do not put passwords, private tokens, or other secrets in this file.
+For Vercel, add `VITE_API_BASE_URL` in **Project Settings → Environment Variables** and set it to the deployed API URL, for example `https://api.example.com/api/v1`. Vercel injects the value at build time, so no code change is required.
+
+`VITE_*` values are embedded in the client build. Do not put passwords, private tokens, or other secrets in these variables.
 
 ## Available commands
 
